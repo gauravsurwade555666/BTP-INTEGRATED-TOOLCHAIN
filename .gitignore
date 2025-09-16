@@ -1,0 +1,45 @@
+# CAP
+_out
+*.db
+connection.properties
+gen/
+node_modules/
+target/
+
+# Web IDE, App Studio
+.che/
+.gen/
+
+# MTA
+*_mta_build_tmp
+*.mtar
+mta_archives/
+*.mta
+
+# Other
+.DS_Store
+*.orig
+*.log
+
+*.iml
+*.flattened-pom.xml
+
+# IDEs
+.vscode
+# .idea
+
+coverage/
+TEST-*.xml
+
+# fiorimodule
+*-content.zip
+dist/
+resources/
+junit/
+
+# auto generated wildcard
+*/gen/db/.env
+
+# local testing
+.env*
+db.sqlite
