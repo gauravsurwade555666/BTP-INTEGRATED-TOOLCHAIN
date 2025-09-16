@@ -6,12 +6,13 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@sap/cds": "^9",
-    "express": "^4",
     "@cap-js/hana": "^2",
+    "@cap-js/sdm": "^1.7.0",
+    "@sap/cds": "^9",
     "@sap/xssec": "4.9.1",
     "axios": "1.11.0",
     "cfenv": "1.2.4",
+    "express": "^4",
     "hdb": "2.25.1",
     "passport": "0.7.0",
     "xlsx": "0.18.5"
