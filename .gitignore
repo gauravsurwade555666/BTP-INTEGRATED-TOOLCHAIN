@@ -43,3 +43,5 @@ junit/
 # local testing
 .env*
 db.sqlite
+# added by cds
+.cdsrc-private.json

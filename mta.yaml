@@ -1,0 +1,99 @@
+_schema-version: 3.3.0
+ID: BTP-INTEGRATED-TOOLCHAIN
+description: A simple CAP project.
+version: 1.0.0
+modules:
+  - name: BTP-INTEGRATED-TOOLCHAIN-srv
+    type: nodejs
+    path: gen/srv
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    parameters:
+      buildpack: nodejs_buildpack
+      # instances: 1
+    build-parameters:
+      builder: npm-ci
+    requires:
+      - name: BTP-INTEGRATED-TOOLCHAIN-db
+      - name: uaa_BTP-INTEGRATED-TOOLCHAIN
+      - name: BTP-INTEGRATED-TOOLCHAIN-dest-srv
+  - name: BTP-INTEGRATED-TOOLCHAIN-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: BTP-INTEGRATED-TOOLCHAIN-dest-srv
+        parameters:
+          content-target: true
+      - name: BTP-INTEGRATED-TOOLCHAIN_html_repo_host
+        parameters:
+          service-key:
+            name: BTP-INTEGRATED-TOOLCHAIN_html_repo_host-key
+      - name: uaa_BTP-INTEGRATED-TOOLCHAIN
+        parameters:
+          service-key:
+            name: uaa_BTP-INTEGRATED-TOOLCHAIN-key
+    parameters:
+      content:
+        subaccount:
+          destinations:
+            - Name: com_deloitte_toolchain_BTP_INTEGRATED_TOOLCHAIN_html_repo_host
+              ServiceInstanceName: BTP-INTEGRATED-TOOLCHAIN-html5-srv
+              ServiceKeyName: BTP-INTEGRATED-TOOLCHAIN_html_repo_host-key
+              sap.cloud.service: com.deloitte.toolchain
+            - Authentication: OAuth2UserTokenExchange
+              Name: com_deloitte_toolchain_uaa_BTP_INTEGRATED_TOOLCHAIN
+              ServiceInstanceName: BTP-INTEGRATED-TOOLCHAIN-xsuaa-service
+              ServiceKeyName: uaa_BTP-INTEGRATED-TOOLCHAIN-key
+              sap.cloud.service: com.deloitte.toolchain
+          existing_destinations_policy: ignore
+    build-parameters:
+      no-source: true
+
+  - name: BTP-INTEGRATED-TOOLCHAIN-db-deployer
+    type: hdb
+    path: gen/db
+    requires:
+      - name: BTP-INTEGRATED-TOOLCHAIN-db
+        properties:
+          TARGET_CONTAINER: ~{hdi-service-name}
+    parameters:
+      buildpack: nodejs_buildpack
+resources:
+  - name: BTP-INTEGRATED-TOOLCHAIN-dest-srv
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        HTML5Runtime_enabled: true
+        version: 1.0.0
+      service: destination
+      service-name: BTP-INTEGRATED-TOOLCHAIN-dest-srv
+      service-plan: lite
+  - name: BTP-INTEGRATED-TOOLCHAIN_html_repo_host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-name: BTP-INTEGRATED-TOOLCHAIN-html5-srv
+      service-plan: app-host
+  - name: uaa_BTP-INTEGRATED-TOOLCHAIN
+    type: org.cloudfoundry.managed-service
+    parameters:
+      path: ./xs-security.json
+      service: xsuaa
+      service-name: BTP-INTEGRATED-TOOLCHAIN-xsuaa-service
+      service-plan: application
+  - name: BTP-INTEGRATED-TOOLCHAIN-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+    properties:
+      hdi-service-name: ${service-name}
+parameters:
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production
