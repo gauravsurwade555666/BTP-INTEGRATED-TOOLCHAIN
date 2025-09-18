@@ -6,22 +6,21 @@ modules:
   - name: BTP-INTEGRATED-TOOLCHAIN-srv
     type: nodejs
     path: gen/srv
+    properties:
+      REPOSITORY_ID: 8764f669-434b-4d55-99c7-fc029160b817
+    requires:
+      - name: BTP-INTEGRATED-TOOLCHAIN-db
+      - name: uaa_BTP-INTEGRATED-TOOLCHAIN
+      - name: BTP-INTEGRATED-TOOLCHAIN-dest-srv
+      - name: sdm-di-instance
     provides:
       - name: srv-api
         properties:
           srv-url: ${default-url}
     parameters:
       buildpack: nodejs_buildpack
-      # instances: 1
     build-parameters:
       builder: npm-ci
-    requires:
-      - name: BTP-INTEGRATED-TOOLCHAIN-db
-      - name: uaa_BTP-INTEGRATED-TOOLCHAIN
-      - name: BTP-INTEGRATED-TOOLCHAIN-dest-srv
-      - name: sdm-di-instance
-    properties:
-      REPOSITORY_ID: 8764f669-434b-4d55-99c7-fc029160b817
   - name: BTP-INTEGRATED-TOOLCHAIN-destination-content
     type: com.sap.application.content
     requires:
@@ -52,7 +51,6 @@ modules:
           existing_destinations_policy: ignore
     build-parameters:
       no-source: true
-
   - name: BTP-INTEGRATED-TOOLCHAIN-db-deployer
     type: hdb
     path: gen/db
@@ -62,16 +60,58 @@ modules:
           TARGET_CONTAINER: ~{hdi-service-name}
     parameters:
       buildpack: nodejs_buildpack
+  - name: BTP-INTEGRATED-TOOLCHAIN-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: BTP-INTEGRATED-TOOLCHAIN_html_repo_host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+        - artifacts:
+            - fiorimodule.zip
+          name: fiorimodule
+          target-path: resources/
+  - name: fiorimodule
+    type: html5
+    path: app/fiorimodule
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build:cf
+      supported-platforms: []
 resources:
   - name: BTP-INTEGRATED-TOOLCHAIN-dest-srv
     type: org.cloudfoundry.managed-service
     parameters:
       config:
         HTML5Runtime_enabled: true
+        init_data:
+          subaccount:
+            destinations:
+              - Name: BTP-INTEGRATED-TOOLCHAIN-srv-api
+                Description: Destination used by Fiori
+                Authentication: NoAuthentication
+                HTML5.ForwardAuthToken: true
+                ProxyType: Internet
+                Type: HTTP
+                URL: ~{srv-api/srv-url}
+              - Authentication: NoAuthentication
+                Name: ui5
+                ProxyType: Internet
+                Type: HTTP
+                URL: https://ui5.sap.com
+            existing_destinations_policy: update
         version: 1.0.0
       service: destination
       service-name: BTP-INTEGRATED-TOOLCHAIN-dest-srv
       service-plan: lite
+    requires:
+      - name: srv-api
   - name: BTP-INTEGRATED-TOOLCHAIN_html_repo_host
     type: org.cloudfoundry.managed-service
     parameters:
@@ -96,8 +136,9 @@ resources:
     type: org.cloudfoundry.managed-service
     parameters:
       service: sdm
-      service-plan: standard
+      service-plan: free
 parameters:
+  deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:

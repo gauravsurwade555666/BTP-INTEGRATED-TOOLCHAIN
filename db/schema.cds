@@ -1,9 +1,10 @@
 namespace db;
 
-using {managed} from '@sap/cds/common';
+using {managed,cuid} from '@sap/cds/common';
 using { Attachments } from '@cap-js/sdm';
 
 entity Request : managed {
-    key RequestID : UUID @(Core.Computed: true);
-    ProcessFlowAttachment : Composition of one Attachments;
+    key RequestID :UUID    @(Core.Computed: true)   ;
+    myAttachments : Composition of many Attachments;
 }
+

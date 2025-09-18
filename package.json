@@ -6,8 +6,9 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@cap-js/hana": "^2",
-    "@cap-js/sdm": "^1.7.0",
+    "@cap-js-community/odata-v2-adapter": "1.15.3",
+    "@cap-js/hana": "2.2.0",
+    "@cap-js/sdm": "1.7.0",
     "@sap/cds": "^9",
     "@sap/xssec": "4.9.1",
     "axios": "1.11.0",
@@ -23,14 +24,21 @@
   "devDependencies": {
     "@cap-js/cds-types": "^0.13.0",
     "@cap-js/sqlite": "^2",
-    "@sap/cds-dk": ">=8"
+    "@sap/cds-dk": ">=8",
+    "cds-plugin-ui5": "^0.13.0",
+    "rimraf": "^5.0.5",
+    "mbt": "^1.2.29"
   },
   "scripts": {
     "start": "cds-serve",
     "enablessh": "cf enable-ssh BTP-INTEGRATED-TOOLCHAIN-srv",
     "cfrestart": "cf restart BTP-INTEGRATED-TOOLCHAIN-srv",
     "ssh": "cf ssh BTP-INTEGRATED-TOOLCHAIN-srv",
-    "startssh": "cf ssh -N -L 9229:127.0.0.1:9229 BTP-INTEGRATED-TOOLCHAIN-srv"
+    "startssh": "cf ssh -N -L 9229:127.0.0.1:9229 BTP-INTEGRATED-TOOLCHAIN-srv",
+    "watch-fiorimodule": "cds watch --open fiorimodule/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "undeploy": "cf undeploy BTP-INTEGRATED-TOOLCHAIN --delete-services --delete-service-keys --delete-service-brokers",
+    "build": "rimraf resources mta_archives && mbt build --mtar archive",
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
   },
   "cds": {
     "cov2ap": {
@@ -41,25 +49,28 @@
     },
     "requires": {
       "db": {
-        "kind": "hana"
+        "[development]": {
+          "kind": "sqlite",
+          "impl": "@cap-js/sqlite",
+          "credentials": {
+            "url": ":memory:"
+          }
+        },
+        "[production]": {
+          "kind": "hana",
+          "impl": "@cap-js/hana",
+          "deploy-format":"hdbtable"
+        }
       },
       "uaa": {
         "kind": "xsuaa"
-      },
-      "[development]": {
-        "db": {
-          "kind": "sql"
-        },
-        "auth": {
-          "strategy": "mock",
-          "users": {
-            "read": {
-              "password": "deloitte",
-              "roles": []
-            }
-          }
-        }
       }
     }
-  }
+  },
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/fiorimodule"
+  ]
 }

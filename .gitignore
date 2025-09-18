@@ -5,6 +5,7 @@ connection.properties
 gen/
 node_modules/
 target/
+package-lock.json
 
 # Web IDE, App Studio
 .che/
@@ -45,3 +46,9 @@ junit/
 db.sqlite
 # added by cds
 .cdsrc-private.json
+
+# auto generated wildcard
+db/.env
+
+*/fiorimodule/dist/*
+*/fiorimodule/webapp/test/*
