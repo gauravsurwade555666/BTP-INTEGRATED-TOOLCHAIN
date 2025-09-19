@@ -7,7 +7,7 @@ modules:
     type: nodejs
     path: gen/srv
     properties:
-      REPOSITORY_ID: 8764f669-434b-4d55-99c7-fc029160b817
+      REPOSITORY_ID: 65b79c7f-5eb8-464e-b863-1cc0d4ee51a9
     requires:
       - name: BTP-INTEGRATED-TOOLCHAIN-db
       - name: uaa_BTP-INTEGRATED-TOOLCHAIN
