@@ -1,10 +1,12 @@
 namespace db;
 
-using {managed,cuid} from '@sap/cds/common';
-using { Attachments } from '@cap-js/sdm';
+using {
+    managed,
+    cuid
+} from '@sap/cds/common';
+
 
 entity Request : managed {
-    key RequestID :UUID    @(Core.Computed: true)   ;
-    myAttachments : Composition of many Attachments;
+    key RequestID : UUID @(Core.Computed: true);
+        URL       : String;
 }
-

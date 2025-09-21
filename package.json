@@ -14,7 +14,9 @@
     "axios": "1.11.0",
     "cfenv": "1.2.4",
     "express": "^4",
+   
     "hdb": "2.25.1",
+    "node-cron": "^4.2.1",
     "passport": "0.7.0",
     "xlsx": "0.18.5"
   },
@@ -26,8 +28,8 @@
     "@cap-js/sqlite": "^2",
     "@sap/cds-dk": ">=8",
     "cds-plugin-ui5": "^0.13.0",
-    "rimraf": "^5.0.5",
-    "mbt": "^1.2.29"
+    "mbt": "^1.2.29",
+    "rimraf": "^5.0.5"
   },
   "scripts": {
     "start": "cds-serve",
@@ -47,6 +49,11 @@
     "hana": {
       "deploy-format": "hdbtable"
     },
+    "server": {
+      "body_parser": {
+        "limit": "100mb"
+      }
+    },
     "requires": {
       "db": {
         "[development]": {
@@ -59,11 +66,25 @@
         "[production]": {
           "kind": "hana",
           "impl": "@cap-js/hana",
-          "deploy-format":"hdbtable"
+          "deploy-format": "hdbtable"
         }
       },
       "uaa": {
         "kind": "xsuaa"
+      },
+      "[test]": {
+        "db": {
+          "kind": "sql"
+        },
+        "auth": {
+          "strategy": "mock",
+          "users": {
+            "dev": {
+              "password": "del",
+              "roles": []
+            }
+          }
+        }
       }
     }
   },
