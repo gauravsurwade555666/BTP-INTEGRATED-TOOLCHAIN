@@ -14,7 +14,7 @@
     "axios": "1.11.0",
     "cfenv": "1.2.4",
     "express": "^4",
-   
+    "sap-cf-axios": "1.0.2",
     "hdb": "2.25.1",
     "node-cron": "^4.2.1",
     "passport": "0.7.0",
@@ -56,7 +56,7 @@
     },
     "requires": {
       "db": {
-        "[development]": {
+        "[hybrid]": {
           "kind": "sqlite",
           "impl": "@cap-js/sqlite",
           "credentials": {
@@ -72,7 +72,7 @@
       "uaa": {
         "kind": "xsuaa"
       },
-      "[test]": {
+      "[hybrid]": {
         "db": {
           "kind": "sql"
         },
