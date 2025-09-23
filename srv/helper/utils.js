@@ -6,8 +6,13 @@ const oCfEnv = require("cfenv");
 const Util = {
 
     getSDMToken: async () => {
-        // const oAppServices = oCfEnv.getAppEnv().getServices();
-        const oAppServices = Util.getCfEnvLocal();
+        let oAppServices;
+        if (process.env?.LOCAL) {
+            oAppServices = oCfEnv.getAppEnv().getServices();
+        } else {
+            oAppServices = Util.getCfEnvLocal();
+        }
+
         if (oAppServices["sdm-di-instance"]) {
             const URL = oAppServices["sdm-di-instance"]?.credentials?.endpoints?.ecmservice?.url;
             const clientID = oAppServices["sdm-di-instance"]?.credentials?.uaa?.clientid;
@@ -79,13 +84,13 @@ const Util = {
         formData.append("propertyValue[1]", "cmis:document");
         formData.append("succinct", "true");
         formData.append("includeAllowableActions", "true");
-       
+
         formData.append("filename", buffer, {
             // contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             name: "file",
             filename: data.fileName ? data.fileName : "ProcessFile.xlsx"
         });
-        
+
         let headers = formData.getHeaders();
         headers["Authorization"] = "Bearer " + token;
         const config = {
