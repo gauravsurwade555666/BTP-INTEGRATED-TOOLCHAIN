@@ -2,6 +2,7 @@ const cds = require('@sap/cds');
 const xssec = require("@sap/xssec");
 const axios = require('axios');
 const FormData = require("form-data");
+const oCfEnv = require("cfenv");
 const Util = {
 
     getSDMToken: async () => {
@@ -35,9 +36,7 @@ const Util = {
                             "sdmEndPoint": URL
                         };
                     } else {
-
                         throw new Error("util.js:fetchSDMToken:Could not fetch token")
-
                     }
                 } catch (oError) {
 
@@ -68,21 +67,25 @@ const Util = {
         return await Util.updateServerRequest(folderCreateURL, formData, config);
     },
     createDocument: async (data, sdmEndpoint, token, parentId, repositoryId, path) => {
+        const buffer = Buffer.from(data.content, 'base64');
         const documentCreateURL =
             sdmEndpoint + "browser/" + repositoryId + "/root" + path;
         const formData = new FormData();
         formData.append("cmisaction", "createDocument");
         // formData.append("objectId", parentId);
         formData.append("propertyId[0]", "cmis:name");
-        formData.append("propertyValue[0]", data.filename);
+        formData.append("propertyValue[0]", data.fileName ? data.fileName : "ProcessFile.xlsx");
         formData.append("propertyId[1]", "cmis:objectTypeId");
         formData.append("propertyValue[1]", "cmis:document");
         formData.append("succinct", "true");
-        formData.append("filename", data.content, {
+        formData.append("includeAllowableActions", "true");
+       
+        formData.append("filename", buffer, {
+            // contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             name: "file",
             filename: data.fileName ? data.fileName : "ProcessFile.xlsx"
         });
-
+        
         let headers = formData.getHeaders();
         headers["Authorization"] = "Bearer " + token;
         const config = {
@@ -105,48 +108,7 @@ const Util = {
     },
     getCfEnvLocal: () => {
         return {
-            "BTP-INTEGRATED-TOOLCHAIN-xsuaa-service": {
-                label: "xsuaa",
-                provider: null,
-                plan: "application",
-                name: "BTP-INTEGRATED-TOOLCHAIN-xsuaa-service",
-                tags: [
-                    "xsuaa",
-                ],
-                instance_guid: "0e1931ea-da71-43c7-a56f-006537049c7e",
-                instance_name: "BTP-INTEGRATED-TOOLCHAIN-xsuaa-service",
-                binding_guid: "546fa2b8-7563-4c4c-b69c-7fbc40464e6f",
-                binding_name: null,
-                credentials: {
-                    tenantmode: "dedicated",
-                    sburl: "https://internal-xsuaa.authentication.us10.hana.ondemand.com",
-                    subaccountid: "6d1e7228-caa7-47d8-8e6c-7249a75fc25c",
-                    "credential-type": "binding-secret",
-                    clientid: "sb-btp-integrated-toolchain!t504205",
-                    xsappname: "btp-integrated-toolchain!t504205",
-                    clientsecret: "546fa2b8-7563-4c4c-b69c-7fbc40464e6f$VUPNoD6nRKU3oxXeZ6nrYjBsLnKU9El-Rt5gAMs5mPQ=",
-                    serviceInstanceId: "0e1931ea-da71-43c7-a56f-006537049c7e",
-                    url: "https://sap-integrated-toolchain-l7fe6os2.authentication.us10.hana.ondemand.com",
-                    uaadomain: "authentication.us10.hana.ondemand.com",
-                    verificationkey: `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzxuPWJDXeUYc7ZvuuX59
-+F0sw4AH495l8r/m9epXIITC2O9+WYraOTfcPDtFSy70T88JjKuyVa7pzn9Uojmj
-4VAI7Sr1OBUqIafO1Z2aaChU5kin8KHBdErgLaK5pXA4anJAkm9yP7SSSswgXEAg
-lm2mOBVYFjyVmbSvbawHAdP1sxRSba4gi5sstyWF6wr9L0i7WjgzEB3ERw5XK67w
-FmKsRXJwofKpSlpvCxWS/zn00ptKojZh6imrnAXlUel2Dm/EpZ5rRQu74ZjlGVwq
-lMwYJYef5jQkvTZNHXg29ZtXS6/HivfBO7EZ0mCy5Z/HVQZiA8G07jLhNuuFZAi6
-uQIDAQAB
------END PUBLIC KEY-----`,
-                    apiurl: "https://api.authentication.us10.hana.ondemand.com",
-                    identityzone: "sap-integrated-toolchain-l7fe6os2",
-                    identityzoneid: "6d1e7228-caa7-47d8-8e6c-7249a75fc25c",
-                    tenantid: "6d1e7228-caa7-47d8-8e6c-7249a75fc25c",
-                    zoneid: "6d1e7228-caa7-47d8-8e6c-7249a75fc25c",
-                },
-                syslog_drain_url: null,
-                volume_mounts: [
-                ],
-            },
+
             "sdm-di-instance": {
                 label: "sdm",
                 provider: null,

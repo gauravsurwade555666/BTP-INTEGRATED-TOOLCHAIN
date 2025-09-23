@@ -45,19 +45,23 @@ class CapDMS extends cds.ApplicationService {
                         //Creating data in HANA DB
                         await db.tx(req).run(INSERT.into('db.Request').entries({
                             RequestID: sRequestID,
-                            process: "MAIN"
+                            fileName: createdDocument?.data?.succinctProperties["cmis:objectId"],
+                            objectId: createdDocument?.data?.succinctProperties["cmis:objectId"],
+                            folderId: createdFolder?.data?.succinctProperties["cmis:objectId"],
+                            folderName: createdFolder?.data?.succinctProperties["cmis:name"],
+                            repository: repositoryId
                         }));
                         //ECON file details saving to HANA DB
-                        await db.tx(req).run(INSERT.into('db.FileAttachment').entries({
-                            RequestID: sRequestID,
-                            process: "MAIN",
-                            path: path,
-                            repository: repositoryId,
-                            fileName: req.data.fileName ? req.data.fileName : "ProcessFile.xlsx",
-                            objectId: createdDocument?.data?.succinctProperties["cmis:objectId"],
-                            folderId: createdFolder?.data?.succinctProperties["cmis:name"],
-                            isSubProcess: false,
-                        }));
+                        // await db.tx(req).run(INSERT.into('db.FileAttachment').entries({
+                        //     RequestID: sRequestID,
+                        //     process: "MAIN",
+                        //     path: path,
+                        //     repository: repositoryId,
+                        //     fileName: req.data.fileName ? req.data.fileName : "ProcessFile.xlsx",
+                        //     objectId: createdDocument?.data?.succinctProperties["cmis:objectId"],
+                        //     folderId: createdFolder?.data?.succinctProperties["cmis:name"],
+                        //     isSubProcess: false,
+                        // }));
 
                         const aEntries = rows.slice(1).map(obj => ({
                             RequestID: sRequestID,
