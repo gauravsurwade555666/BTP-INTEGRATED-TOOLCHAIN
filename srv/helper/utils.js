@@ -8,9 +8,9 @@ const Util = {
     getSDMToken: async () => {
         let oAppServices;
         if (process.env?.LOCAL) {
-            oAppServices = oCfEnv.getAppEnv().getServices();
-        } else {
             oAppServices = Util.getCfEnvLocal();
+        } else {
+            oAppServices = oCfEnv.getAppEnv().getServices();
         }
 
         if (oAppServices["sdm-di-instance"]) {
